@@ -1243,7 +1243,7 @@ class Writer:
         self.ref = nitropy.nitf_Writer_construct(self.error)
         if not self.ref:
             raise Exception('Unable to create Writer')
-        self._imageWriters, self._graphicWriters = [], []
+        self._imageWriters, self._graphicWriters, self._textWriters = [], [], []
         self.io = None
 
     def __del__(self):
@@ -1268,6 +1268,15 @@ class Writer:
             writer.attached = True
             return writer
         raise Exception('Unable to get new GraphicWriter: (%s)' % self.error.message)
+
+    def newTextWriter(self, num):
+        writer = nitropy.nitf_Writer_newTextWriter(self.ref, num, self.error)
+        if writer:
+            writer = SegmentWriter(writer)
+            self._textWriters.append(writer)
+            writer.attached = True
+            return writer
+        raise Exception('Unable to get new TextWriter: (%s)' % self.error.message)
 
     def prepare(self, record, handle):
         self.io = handle #must set this so it doesn't get ref-counted away
